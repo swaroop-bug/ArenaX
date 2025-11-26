@@ -195,7 +195,7 @@ function App() {
           </div>
 
           <div className="hero-video glass-card">
-            <video src="IMG_8017.MOV"
+            <video src="introvideo.mp4"
               className="video-element"
               controls
               loop
