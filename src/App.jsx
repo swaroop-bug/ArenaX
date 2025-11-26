@@ -206,6 +206,45 @@ function App() {
             </video>
           </div>
         </section>
+{/* FEES & PRIZE POOL SECTION */}
+<section className="fees-section glass-card fade-up">
+  <h2>Registration Fees & Prize Pool</h2>
+  <p className="form-note">
+    Register your team and compete for exciting prize pools.
+  </p>
+
+  <div className="fees-grid">
+    <div className="fee-card glass-inner">
+      <h3>BGMI</h3>
+      <p className="fee-text">
+        <strong>Registration:</strong> ₹400 / team
+      </p>
+      <p className="prize-text">
+        <strong>Prize Pool:</strong> ₹8,000
+      </p>
+    </div>
+
+    <div className="fee-card glass-inner">
+      <h3>Free Fire</h3>
+      <p className="fee-text">
+        <strong>Registration:</strong> ₹200 / team
+      </p>
+      <p className="prize-text">
+        <strong>Prize Pool:</strong> ₹5,000
+      </p>
+    </div>
+
+    <div className="fee-card glass-inner">
+      <h3>Valorant</h3>
+      <p className="fee-text">
+        <strong>Registration:</strong> ₹500 / team
+      </p>
+      <p className="prize-text">
+        <strong>Prize Pool:</strong> ₹8,000
+      </p>
+    </div>
+  </div>
+</section>
 
         {/* STEP INDICATOR */}
         <div className="step-indicator glass-card fade-up">
@@ -508,8 +547,20 @@ function App() {
         <section id="faq" className="info-section glass-card fade-up">
           <h2>FAQ</h2>
           <p>
-            Example: What is the entry fee? Can non-Terna students participate?
-            What about substitutes? Add all common questions here.
+            Question: What is the entry fee? <br />
+            Answer: ₹400 for BGMI teams, ₹500 for Valorant teams, ₹200 for Free fire <br /> <br />
+            Question: Can non-Terna students participate? <br />
+            Answer: Yes, open to all college students. <br /> <br />
+            Question: How to pay the registration fee? <br />
+            Answer: UPI payment via QR code or UPI ID provided during registration. <br /> <br />
+            Question: When and where will the matches be held? <br />
+            Answer: Online matches; schedule shared in WhatsApp groups. <br /> <br />
+            Question: Are there any prizes? <br />
+            Answer: Yes, exciting prizes for winning teams. Details in rules document. <br /> <br />
+            Question: What about substitutes? <br />
+            Answer: Each team can register one substitute player. <br /> <br />
+            Question: Who to contact for support? <br />
+            Answer: Contact Swaroop (+91 9326151339) or Aditi (+91 9876543210).
           </p>
         </section>
 <footer>
