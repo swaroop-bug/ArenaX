@@ -195,16 +195,22 @@ function App() {
           </div>
 
           <div className="hero-video glass-card">
-            <video src="introvideo.mp4"
-              className="video-element"
-              controls
-              loop
-              autoPlay
-            >
-              {/* Replace with your own promo video */}
-              Your browser does not support the video tag.
-            </video>
-          </div>
+  <video
+    className="video-element"
+    controls
+    loop
+    autoPlay
+      muted  // ✅ important for autoplay on browsers
+    playsInline
+  >
+    <source
+      src={`${import.meta.env.BASE_URL}introvideo.mp4`}
+      type="video/mp4"
+    />
+    Your browser does not support the video tag.
+  </video>
+</div>
+
         </section>
 {/* FEES & PRIZE POOL SECTION */}
 <section className="fees-section glass-card fade-up">
