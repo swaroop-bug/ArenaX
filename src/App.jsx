@@ -177,10 +177,11 @@ function App() {
       <header className="navbar glass-card fade-down">
         <div className="logo">ArenaX • CSI</div>
         <nav className="nav-links">
-          <button onClick={() => handleNavClick("rules")}>Rules</button>
-          <button onClick={() => handleNavClick("faq")}>FAQ</button>
-          <button onClick={() => handleNavClick("contact")}>Contact</button>
-        </nav>
+  <button onClick={() => handleNavClick("rules")}>Rules</button>
+  <button onClick={() => handleNavClick("faq")}>FAQ</button>
+  <button onClick={() => handleNavClick("contact")}>Contact</button>
+</nav>
+
       </header>
 
       <main className="content">
@@ -200,7 +201,7 @@ function App() {
     controls
     loop
     autoPlay
-      muted  // ✅ important for autoplay on browsers
+      // muted  // 
     playsInline
   >
     <source
@@ -545,9 +546,15 @@ function App() {
 >
   Rules
 </button> */}
-<section id="rules" className="info-section glass-card fade-up">
-  <a href="https://docs.google.com/document/d/1sEhN0M1htsD0gwCbjwH8mz_pMhXWwKq-/edit?usp=sharing&ouid=112968532099256946465&rtpof=true&sd=true"></a>
-  </section>
+<button
+  onClick={() =>
+    window.open(
+      "https://docs.google.com/document/d/1sEhN0M1htsD0gwCbjwH8mz_pMhXWwKq-/edit?usp=sharing&ouid=112968532099256946465&rtpof=true&sd=true"
+    )
+  }
+>
+  
+</button>
 
 
         <section id="faq" className="info-section glass-card fade-up">
