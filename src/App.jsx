@@ -1,40 +1,46 @@
 import { useState } from "react";
 
 const TEAM_SIZES = {
-  "BGMI": 4,
-  "Valorant": 5,
+  BGMI: 4,
+  Valorant: 5,
   "Free Fire": 4,
 };
 
 const WHATSAPP_LINKS = {
-  "BGMI": "https://chat.whatsapp.com/HvVUQHPhx2t1C2nFiJxnOG?mode=wwt",
-  "Valorant": "https://chat.whatsapp.com/IMarJKlnLjuGP1SJWKw4os?mode=wwt",
+  BGMI: "https://chat.whatsapp.com/HvVUQHPhx2t1C2nFiJxnOG?mode=wwt",
+  Valorant: "https://chat.whatsapp.com/IMarJKlnLjuGP1SJWKw4os?mode=wwt",
   "Free Fire": "https://chat.whatsapp.com/BRz4Xf5ZIq60SonrGSfPWd?mode=wwt",
 };
+
+const LFT_WHATSAPP_LINK =
+  "https://chat.whatsapp.com/Ipx4VuZnIM90PoJHTrjFNz?mode=hqrc"; // solo/duo/trio group link
 
 const PAYMENT_INFO = {
   BGMI: {
     feeLabel: "Registration Fee: ₹400 per team",
     upiId: "9326151339@upi",
-    qrImage:
-      "bgmi qr.jpg", 
-  },
-  Valorant: {
-    feeLabel: "Registration Fee: ₹500 per team",
-    upiId: "9326151339@upi",
-    qrImage:
-      "valorant qr.jpg", 
+    qrImage: "bgmi qr.jpg", // put these in public/ or use full URLs
   },
   "Free Fire": {
     feeLabel: "Registration Fee: ₹200 per team",
     upiId: "9326151339@upi",
-    qrImage:
-      "freefire qr.jpg",
+    qrImage: "Freefire qr.jpg",
+  },
+  Valorant: {
+    feeLabel: "Registration Fee: ₹500 per team",
+    upiId: "9326151339@upi",
+    qrImage: "valorant qr.jpg",
   },
 };
 
+
+
+const SHEETDB_URL = "https://sheetdb.io/api/v1/xuqx5h1kstyzr";
+
+
+
 function App() {
-  const [step, setStep] = useState("basic"); // "basic" | "players" | "success"
+  const [step, setStep] = useState("basic"); 
 
   const [basicForm, setBasicForm] = useState({
     teamName: "",
@@ -51,9 +57,16 @@ function App() {
     confirmed: false,
   });
 
+  const [paymentScreenshot, setPaymentScreenshot] = useState({
+    fileName: "",
+    dataUrl: "",
+  });
+
   const [selectedGame, setSelectedGame] = useState("");
   const [successGame, setSuccessGame] = useState("");
   const [successLink, setSuccessLink] = useState("");
+  const [isSubmitting, setIsSubmitting] = useState(false);
+const [acceptedTnc, setAcceptedTnc] = useState(false);
 
   // ---------- NAVBAR SCROLL ----------
   const handleNavClick = (id) => {
@@ -70,33 +83,39 @@ function App() {
   };
 
   const handleBasicSubmit = (e) => {
-  e.preventDefault();
-  if (
-    !basicForm.teamName ||
-    !basicForm.collegeName ||
-    !basicForm.email ||
-    !basicForm.phone ||
-    !basicForm.game
-  ) {
-    alert("Please fill all fields and select a game.");
-    return;
-  }
+    e.preventDefault();
+    if (
+      !basicForm.teamName ||
+      !basicForm.collegeName ||
+      !basicForm.email ||
+      !basicForm.phone ||
+      !basicForm.game
+    ) {
+      alert("Please fill all fields and select a game.");
+      return;
+    }
 
-  const size = TEAM_SIZES[basicForm.game] || 4;
+    const size = TEAM_SIZES[basicForm.game] || 4;
 
-  // ✅ size main players + 1 substitute
-  const initialPlayers = Array.from({ length: size + 1 }, (_, index) => ({
-    name: "",
-    ign: "",
-    gameId: "",
-    isSubstitute: index === size, // last one is substitute
-  }));
+    
+    const mainPlayers = Array.from({ length: size }, () => ({
+      name: "",
+      ign: "",
+      gameId: "",
+      isSubstitute: false,
+    }));
 
-  setPlayers(initialPlayers);
-  setSelectedGame(basicForm.game);
-  setStep("players");
-};
+    const substitutePlayer = {
+      name: "",
+      ign: "",
+      gameId: "",
+      isSubstitute: true,
+    };
 
+    setPlayers([...mainPlayers, substitutePlayer]);
+    setSelectedGame(basicForm.game);
+    setStep("players");
+  };
 
   // ---------- PLAYERS FORM ----------
   const handlePlayerChange = (index, field, value) => {
@@ -115,34 +134,165 @@ function App() {
     }));
   };
 
-  const handlePlayersSubmit = (e) => {
-    e.preventDefault();
 
-    // Simple validation
-    for (let i = 0; i < players.length; i++) {
-      const p = players[i];
+  const handleScreenshotChange = (e) => {
+    const file = e.target.files?.[0];
+    if (!file) {
+      setPaymentScreenshot({ fileName: "", dataUrl: "" });
+      return;
+    }
+
+    const reader = new FileReader();
+    reader.onloadend = () => {
+      setPaymentScreenshot({
+        fileName: file.name,
+        dataUrl: reader.result, 
+      });
+    };
+    reader.readAsDataURL(file);
+  };
+
+  const gameIdLabel =
+    selectedGame === "Valorant"
+      ? "Riot ID + #Tag (e.g. Player#1234)"
+      : "In-Game ID";
+
+  // ---------- SUBMIT ALL TO SHEET.BEST ----------
+  const handlePlayersSubmit = async (e) => {
+  e.preventDefault();
+
+  
+  for (let i = 0; i < players.length; i++) {
+    const p = players[i];
+
+    if (p.isSubstitute) {
+      const allEmpty = !p.name && !p.ign && !p.gameId;
+      if (allEmpty) continue;
+
+      if (!p.name || !p.ign || !p.gameId) {
+        alert(
+          "Please either fill all substitute player fields or leave them completely empty."
+        );
+        return;
+      }
+    } else {
       if (!p.name || !p.ign || !p.gameId) {
         alert(`Please fill all details for Player ${i + 1}.`);
         return;
       }
     }
+  }
 
-    if (!payment.txnId || !payment.confirmed) {
-      alert("Please enter payment transaction ID and confirm payment.");
+  if (!payment.txnId || !payment.confirmed) {
+    alert("Please enter payment transaction ID and confirm payment.");
+    return;
+  }
+
+  if (!paymentScreenshot.dataUrl) {
+    alert("Please upload the payment screenshot.");
+    return;
+  }
+
+  const link = WHATSAPP_LINKS[selectedGame] || "#";
+
+ // Flatten players into columns
+const flatPlayers = {
+  player1Name: "",
+  player1Ign: "",
+  player1GameId: "",
+  player2Name: "",
+  player2Ign: "",
+  player2GameId: "",
+  player3Name: "",
+  player3Ign: "",
+  player3GameId: "",
+  player4Name: "",
+  player4Ign: "",
+  player4GameId: "",
+  player5Name: "",
+  player5Ign: "",
+  player5GameId: "",
+  substituteName: "",
+  substituteIgn: "",
+  substituteGameId: "",
+};
+
+players.forEach((p, index) => {
+  if (p.isSubstitute) {
+    flatPlayers.substituteName = p.name || "";
+    flatPlayers.substituteIgn = p.ign || "";
+    flatPlayers.substituteGameId = p.gameId || "";
+  } else {
+    const num = index + 1; // 1-based index
+    const nameKey = `player${num}Name`;
+    const ignKey = `player${num}Ign`;
+    const idKey = `player${num}GameId`;
+
+    if (flatPlayers[nameKey] !== undefined) {
+      flatPlayers[nameKey] = p.name || "";
+      flatPlayers[ignKey] = p.ign || "";
+      flatPlayers[idKey] = p.gameId || "";
+    }
+  }
+});
+
+const payload = {
+  timestamp: new Date().toISOString(),
+  teamName: basicForm.teamName,
+  collegeName: basicForm.collegeName,
+  email: basicForm.email,
+  phone: basicForm.phone,
+  game: selectedGame,
+  paymentMethod: payment.method,
+  transactionId: payment.txnId,
+  paymentScreenshotName: paymentScreenshot.fileName || "",
+  hasPaymentScreenshot: paymentScreenshot.dataUrl ? "yes" : "no",
+
+  ...flatPlayers,
+};
+
+
+
+  try {
+    setIsSubmitting(true);
+
+    console.log("Sending payload to SheetDB:", payload);
+
+    const res = await fetch(SHEETDB_URL, {
+  method: "POST",
+  headers: { "Content-Type": "application/json" },
+  body: JSON.stringify({ data: payload }), 
+});
+
+
+    const text = await res.text();
+    console.log("SheetDB status:", res.status);
+console.log("SheetDB response body:", text);
+
+    if (!res.ok) {
+      alert(
+        `SheetDB error.\n\nStatus: ${res.status}\n\nBody:\n${text}\n\nTake a screenshot of this and share it with the dev.`
+      );
       return;
     }
-
-    const link = WHATSAPP_LINKS[selectedGame] || "#";
 
     setSuccessGame(selectedGame);
     setSuccessLink(link);
     setStep("success");
 
     alert(
-      `Thank you for registering for ${selectedGame}!\n\n` +
-      `Make sure you join the WhatsApp group shown on the screen.`
+      `Thank you for registering for ${selectedGame}!\n\nMake sure you join the WhatsApp group shown on the screen.`
     );
-  };
+  } catch (err) {
+    console.error("Network / CORS error while calling Sheetbest:", err);
+    alert(
+      "There was a problem submitting your registration (network / CORS). Open the console and check the red error message."
+    );
+  } finally {
+    setIsSubmitting(false);
+  }
+};
+
 
   const resetAll = () => {
     setBasicForm({
@@ -158,6 +308,10 @@ function App() {
       txnId: "",
       confirmed: false,
     });
+    setPaymentScreenshot({
+      fileName: "",
+      dataUrl: "",
+    });
     setSelectedGame("");
     setSuccessGame("");
     setSuccessLink("");
@@ -165,33 +319,39 @@ function App() {
     window.scrollTo({ top: 0, behavior: "smooth" });
   };
 
-  const gameIdLabel =
-    selectedGame === "Valorant"
-      ? "Riot ID + #Tag (e.g. Swaroop#1234)"
-      : "In-Game ID";
-
   return (
     <div className="page-wrapper">
       <div className="blur-bg"></div>
 
       <header className="navbar glass-card fade-down">
-        <div className="logo">ArenaX • CSI</div>
+        <div className="logo">ArenaX • CSI TERNA</div>
         <nav className="nav-links">
-  <button onClick={() => handleNavClick("rules")}>Rules</button>
-  <button onClick={() => handleNavClick("faq")}>FAQ</button>
-  <button onClick={() => handleNavClick("contact")}>Contact</button>
-</nav>
-
+          {/* Rules → open Drive rulebook */}
+          <button
+            onClick={() =>
+              window.open(
+                "https://docs.google.com/document/d/1sEhN0M1htsD0gwCbjwH8mz_pMhXWwKq-/edit?usp=sharing&ouid=112968532099256946465&rtpof=true&sd=true",
+                "_blank"
+              )
+            }
+          >
+            Rules
+          </button>
+          <button onClick={() => handleNavClick("faq")}>FAQ</button>
+          <button onClick={() => handleNavClick("contact")}>Contact</button>
+        </nav>
       </header>
 
       <main className="content">
         {/* HERO SECTION */}
         <section className="hero-section fade-up">
           <div className="hero-text">
-            <h1 className="hero-title">Welcome to ArenaX</h1>
+            <h1 className="hero-title">
+              Welcome to <span>ArenaX</span>
+            </h1>
             <p className="hero-subtitle">
               The ultimate campus e-sports showdown. Register your squad and
-              conquer the arena.
+              battle it out in BGMI, Free Fire and Valorant.
             </p>
           </div>
 
@@ -201,57 +361,73 @@ function App() {
     controls
     loop
     autoPlay
-      // muted  // 
+    // muted
     playsInline
   >
-    <source
-      src={`${import.meta.env.BASE_URL}introvideo.mp4`}
-      type="video/mp4"
-    />
+    <source src="/introvideo.mp4" type="video/mp4" />
     Your browser does not support the video tag.
   </video>
 </div>
 
         </section>
-{/* FEES & PRIZE POOL SECTION */}
-<section className="fees-section glass-card fade-up">
-  <h2>Registration Fees & Prize Pool</h2>
-  <p className="form-note">
-    Register your team and compete for exciting prize pools.
-  </p>
 
-  <div className="fees-grid">
-    <div className="fee-card glass-inner">
-      <h3>BGMI</h3>
-      <p className="fee-text">
-        <strong>Registration:</strong> ₹400 / team
-      </p>
-      <p className="prize-text">
-        <strong>Prize Pool:</strong> ₹8,000
-      </p>
-    </div>
+        {/* FEES + PRIZEPOOL + LFT BOX */}
+        <section className="fees-section glass-card fade-up">
+          <h2>Registration Fees & Prize Pool</h2>
+          <p className="form-note">
+            Register your team and compete for exciting prize pools.
+          </p>
 
-    <div className="fee-card glass-inner">
-      <h3>Free Fire</h3>
-      <p className="fee-text">
-        <strong>Registration:</strong> ₹200 / team
-      </p>
-      <p className="prize-text">
-        <strong>Prize Pool:</strong> ₹5,000
-      </p>
-    </div>
+          <div className="fees-grid">
+            <div className="fee-card glass-inner">
+              <h3>BGMI</h3>
+              <p className="fee-text">
+                <strong>Registration:</strong> ₹400 / team
+              </p>
+              <p className="prize-text">
+                <strong>Prize Pool:</strong> ₹8,000
+              </p>
+            </div>
 
-    <div className="fee-card glass-inner">
-      <h3>Valorant</h3>
-      <p className="fee-text">
-        <strong>Registration:</strong> ₹500 / team
-      </p>
-      <p className="prize-text">
-        <strong>Prize Pool:</strong> ₹8,000
-      </p>
-    </div>
-  </div>
-</section>
+            <div className="fee-card glass-inner">
+              <h3>Free Fire</h3>
+              <p className="fee-text">
+                <strong>Registration:</strong> ₹200 / team
+              </p>
+              <p className="prize-text">
+                <strong>Prize Pool:</strong> ₹5,000
+              </p>
+            </div>
+
+            <div className="fee-card glass-inner">
+              <h3>Valorant</h3>
+              <p className="fee-text">
+                <strong>Registration:</strong> ₹500 / team
+              </p>
+              <p className="prize-text">
+                <strong>Prize Pool:</strong> ₹8,000
+              </p>
+            </div>
+
+            {/* LFT / Solo-Duo-Trio Box */}
+            <div className="fee-card glass-inner lft-card">
+              <h3>Need Team Members?</h3>
+              <p className="fee-text">
+                If you are solo, duo or trio and want to find teammates, join
+                our LFT (Looking For Team) WhatsApp group and share your
+                requirement.
+              </p>
+              <a
+                href={LFT_WHATSAPP_LINK}
+                target="_blank"
+                rel="noreferrer"
+                className="whatsapp-link small-link"
+              >
+                Join LFT WhatsApp Group
+              </a>
+            </div>
+          </div>
+        </section>
 
         {/* STEP INDICATOR */}
         <div className="step-indicator glass-card fade-up">
@@ -293,7 +469,7 @@ function App() {
                   name="collegeName"
                   value={basicForm.collegeName}
                   onChange={handleBasicChange}
-                  placeholder="Enter your college name"
+                  placeholder="Enter your institute name"
                 />
               </div>
 
@@ -328,8 +504,8 @@ function App() {
                 >
                   <option value="">-- Choose a game --</option>
                   <option value="BGMI">BGMI</option>
-                  <option value="Valorant">Valorant</option>
                   <option value="Free Fire">Free Fire</option>
+                  <option value="Valorant">Valorant</option>
                 </select>
               </div>
 
@@ -345,9 +521,7 @@ function App() {
         {/* STEP 2: PLAYERS + PAYMENT */}
         {step === "players" && (
           <section className="form-section glass-card fade-up">
-            <h2>
-              {selectedGame} • Player Details
-            </h2>
+            <h2>{selectedGame} • Player Details</h2>
             <p className="form-note">
               Enter details of all players in your squad. Make sure everything
               matches the in-game names and IDs.
@@ -355,12 +529,13 @@ function App() {
 
             <form onSubmit={handlePlayersSubmit}>
               <div className="players-grid">
-               {players.map((player, index) => (
-  <div key={index} className="player-card glass-inner">
-    <h3>
-      {player.isSubstitute ? "Substitute" : `Player ${index + 1}`}
-    </h3>
-
+                {players.map((player, index) => (
+                  <div key={index} className="player-card glass-inner">
+                    <h3>
+                      {player.isSubstitute
+                        ? "Substitute (optional)"
+                        : `Player ${index + 1}`}
+                    </h3>
                     <div className="form-field">
                       <label>Full Name</label>
                       <input
@@ -393,7 +568,7 @@ function App() {
                         }
                         placeholder={
                           selectedGame === "Valorant"
-                            ? "Swaroop#1234"
+                            ? "Player#1234"
                             : "In-game ID / UID"
                         }
                       />
@@ -403,100 +578,155 @@ function App() {
               </div>
 
               {/* PAYMENT SECTION */}
-<div className="payment-section glass-inner">
-  {(() => {
-    const info = PAYMENT_INFO[selectedGame] || {};
-    return (
-      <>
-        <h3>Payment Details – {selectedGame}</h3>
-        <p className="form-note small">
-          Please scan the QR for <strong>{selectedGame}</strong> and pay the
-          registration amount. Then enter your transaction ID below.
-        </p>
+              <div className="payment-section glass-inner">
+                {(() => {
+                  const info = PAYMENT_INFO[selectedGame] || {};
+                  return (
+                    <>
+                      <h3>Payment Details – {selectedGame}</h3>
+                      <p className="form-note small">
+                        Please scan the QR for <strong>{selectedGame}</strong>{" "}
+                        and pay the registration amount. Then enter your
+                        transaction ID and upload the payment screenshot.
+                      </p>
 
-        {/* Fee + QR + UPI ID (different for each game) */}
-        <div className="payment-game-row">
-          <div className="payment-qr-box">
-            {info.qrImage ? (
-              <img
-                src={info.qrImage}
-                alt={`${selectedGame} payment QR`}
-                className="payment-qr-img"
-              />
-            ) : (
-              <div className="payment-qr-placeholder">
-                Add QR for {selectedGame}
+                      {/* Fee + QR + UPI ID (different for each game) */}
+                      <div className="payment-game-row">
+                        <div className="payment-qr-box">
+                          {info.qrImage ? (
+                            <img
+                              src={info.qrImage}
+                              alt={`${selectedGame} payment QR`}
+                              className="payment-qr-img"
+                            />
+                          ) : (
+                            <div className="payment-qr-placeholder">
+                              Add QR for {selectedGame}
+                            </div>
+                          )}
+                        </div>
+
+                        <div className="payment-info-text">
+                          <p className="fee-label">
+                            {info.feeLabel || "Registration Fee"}
+                          </p>
+                          <p className="upi-id">
+                            <strong>UPI ID:</strong>{" "}
+                            {info.upiId || "arenax@upi"}
+                          </p>
+                          <p className="form-note small">
+                            Make sure to pay from the team leader&apos;s number,
+                            and keep a screenshot as proof.
+                            <br />
+                            <strong>Entering an incorrect or fake transaction ID will result in immediate disqualification and cancellation of registration.</strong>
+                          </p>
+                        </div>
+                      </div>
+
+                      {/* Common payment fields */}
+                      <div className="payment-grid">
+                        <div className="form-field">
+                          <label>Payment Method</label>
+                          <select
+                            name="method"
+                            value={payment.method}
+                            onChange={handlePaymentChange}
+                          >
+                            <option value="upi">Paytm</option>
+                            <option value="gpay">Google Pay</option>
+                            <option value="phonepe">PhonePe</option>
+                            <option value="other">Other</option>
+                          </select>
+                        </div>
+
+                        <div className="form-field">
+                          <label>Transaction ID / UTR</label>
+                          <input
+                            type="text"
+                            name="txnId"
+                            value={payment.txnId}
+                            onChange={handlePaymentChange}
+                            placeholder="Enter payment reference ID"
+                          />
+                        </div>
+                      </div>
+
+                      {/* Screenshot upload */}
+                      <div className="screenshot-field">
+                        <label>Upload Payment Screenshot (required)</label>
+                        <input
+                          type="file"
+                          accept="image/*"
+                          onChange={handleScreenshotChange}
+                        />
+                        {paymentScreenshot.dataUrl && (
+                          <div className="screenshot-preview">
+                            <img
+                              src={paymentScreenshot.dataUrl}
+                              alt="Payment screenshot preview"
+                            />
+                            <p className="form-note small">
+                              {paymentScreenshot.fileName}
+                            </p>
+                          </div>
+                        )}
+                      </div>
+
+                      <label className="checkbox-row">
+                        <input
+                          type="checkbox"
+                          name="confirmed"
+                          checked={payment.confirmed}
+                          onChange={handlePaymentChange}
+                        />
+                        <span>
+                          I confirm that I have paid the registration fees for{" "}
+                          {selectedGame}. 
+                        </span>
+                        </label>
+                        <span>
+                          <label className="checkbox-row">
+  <input
+    type="checkbox"
+    checked={acceptedTnc}
+    onChange={(e) => setAcceptedTnc(e.target.checked)}
+  />
+  <span>
+    I agree to the{" "}
+    <a
+      href="https://arenax-tandc.netlify.app/"
+      target="_blank"
+      rel="noreferrer"
+      className="tnc-link"
+    >
+      Terms & Conditions
+    </a>
+    .
+  </span>
+</label>
+
+                        </span>
+                      
+                    </>
+                  );
+                })()}
               </div>
-            )}
-          </div>
-
-          <div className="payment-info-text">
-            <p className="fee-label">{info.feeLabel || "Registration Fee"}</p>
-            <p className="upi-id">
-              <strong>UPI ID:</strong> {info.upiId || "arenax@upi"}
-            </p>
-            <p className="form-note small">
-              Make sure to pay from the team leader&apos;s number, and keep a
-              screenshot as proof.
-            </p>
-          </div>
-        </div>
-
-        {/* Common payment fields */}
-        <div className="payment-grid">
-          <div className="form-field">
-            <label>Payment Method</label>
-            <select
-              name="method"
-              value={payment.method}
-              onChange={handlePaymentChange}
-            >
-              <option value="upi">UPI</option>
-              <option value="gpay">Google Pay</option>
-              <option value="phonepe">PhonePe</option>
-              <option value="other">Other</option>
-            </select>
-          </div>
-
-          <div className="form-field">
-            <label>Transaction ID / UTR</label>
-            <input
-              type="text"
-              name="txnId"
-              value={payment.txnId}
-              onChange={handlePaymentChange}
-              placeholder="Enter payment reference ID"
-            />
-          </div>
-        </div>
-
-        <label className="checkbox-row">
-          <input
-            type="checkbox"
-            name="confirmed"
-            checked={payment.confirmed}
-            onChange={handlePaymentChange}
-          />
-          <span>
-            I confirm that I have paid the registration fees for{" "}
-            {selectedGame}.
-          </span>
-        </label>
-      </>
-    );
-  })()}
-</div>
 
               <div className="form-actions between">
                 <button
                   type="button"
                   className="secondary-btn"
                   onClick={() => setStep("basic")}
+                  disabled={isSubmitting}
                 >
                   ⬅ Back
                 </button>
-                <button type="submit" className="primary-btn">
-                  Submit Registration
+                <button
+                  type="submit"
+                  className="primary-btn"
+                  disabled={isSubmitting}
+                >
+                  {isSubmitting ? "Submitting..." : "Next"}
                 </button>
               </div>
             </form>
@@ -518,7 +748,7 @@ function App() {
                 href={successLink}
                 target="_blank"
                 rel="noreferrer"
-                className="whatsapp-link pulse"
+                className="whatsapp-link"
               >
                 Join {successGame} WhatsApp Group
               </a>
@@ -535,35 +765,16 @@ function App() {
           </section>
         )}
 
-        {/* INFO SECTIONS */}
-        {/* <button
-  onClick={() =>
-    window.open(
-      "https://docs.google.com/document/d/1sEhN0M1htsD0gwCbjwH8mz_pMhXWwKq-/edit?usp=sharing&ouid=112968532099256946465&rtpof=true&sd=true",
-      "_blank"
-    )
-  }
->
-  Rules
-</button> */}
-<button
-  onClick={() =>
-    window.open(
-      "https://docs.google.com/document/d/1sEhN0M1htsD0gwCbjwH8mz_pMhXWwKq-/edit?usp=sharing&ouid=112968532099256946465&rtpof=true&sd=true"
-    )
-  }
->
-  
-</button>
-
-
+        {/* FAQ & CONTACT SECTIONS */}
         <section id="faq" className="info-section glass-card fade-up">
           <h2>FAQ</h2>
           <p>
             Question: What is the entry fee? <br />
             Answer: ₹400 for BGMI teams, ₹500 for Valorant teams, ₹200 for Free fire <br /> <br />
+            Question: What will happen if I provide a fake transaction ID? <br />
+            Answer: Immediate disqualification and cancellation of registration. <br /> <br />
             Question: Can non-Terna students participate? <br />
-            Answer: Yes, open to all college students. <br /> <br />
+            Answer: Yes, open to all players. <br /> <br />
             Question: How to pay the registration fee? <br />
             Answer: UPI payment via QR code or UPI ID provided during registration. <br /> <br />
             Question: When and where will the matches be held? <br />
@@ -573,20 +784,19 @@ function App() {
             Question: What about substitutes? <br />
             Answer: Each team can register one substitute player. <br /> <br />
             Question: Who to contact for support? <br />
-            Answer: Contact Swaroop (+91 9326151339) or Aditi (+91 9876543210).
+            Answer: Contact Swaroop (+91 9326151339) or Aditi (+91 7738704925).
           </p>
         </section>
-<footer>
+
         <section id="contact" className="info-section glass-card fade-up">
           <h2>Contact Us</h2>
           <p>
             Swaroop: +91 9326151339 <br />
-            Aditi: +91 9876543210 <br />
-
+            Aditi: +91 7738704925 <br />
+<br />
             csi@ternaengg.ac.in   
           </p>
         </section>
-        </footer>
       </main>
     </div>
   );

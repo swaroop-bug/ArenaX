@@ -751,3 +751,40 @@ body {
 .info-section p + p {
   margin-top: 0.6rem;
 }
+
+/* LFT card tweaks */
+.lft-card {
+  border-style: dashed;
+}
+
+.whatsapp-link.small-link {
+  margin-top: 0.7rem;
+  padding: 0.45rem 1.3rem;
+  font-size: 0.82rem;
+  box-shadow: 0 10px 24px rgba(34, 197, 94, 0.6);
+}
+
+/* Payment screenshot upload */
+.screenshot-field {
+  margin-top: 0.9rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.4rem;
+  font-size: 0.82rem;
+}
+
+.screenshot-field input[type="file"] {
+  font-size: 0.8rem;
+  cursor: pointer;
+}
+
+.screenshot-preview {
+  margin-top: 0.3rem;
+}
+
+.screenshot-preview img {
+  max-width: 160px;
+  border-radius: 12px;
+  border: 1px solid rgba(148, 163, 184, 0.7);
+  display: block;
+}
