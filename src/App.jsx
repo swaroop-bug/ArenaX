@@ -7,8 +7,8 @@ const TEAM_SIZES = {
 };
 
 const WHATSAPP_LINKS = {
-  BGMI: "https://chat.whatsapp.com/HvVUQHPhx2t1C2nFiJxnOG?mode=wwt",
-  Valorant: "https://chat.whatsapp.com/IMarJKlnLjuGP1SJWKw4os?mode=wwt",
+  BGMI: "https://chat.whatsapp.com/LYcJo0z4sAbEhh3o017kSc?mode=hqrc",
+  Valorant: "https://chat.whatsapp.com/IH6pLBAJeXoE5Wj4PWYFMn?mode=hqrc",
   "Free Fire": "https://chat.whatsapp.com/BRz4Xf5ZIq60SonrGSfPWd?mode=wwt",
 };
 
@@ -789,18 +789,25 @@ console.log("SheetDB response body:", text);
           </p>
         </section>
 
-        <section id="contact" className="info-section glass-card fade-up">
-          <h2>Contact Us</h2>
-          <p>
-            Swaroop: +91 9326151339 <br />
-            Aditi: +91 7738704925 <br />
-<br />
-            csi@ternaengg.ac.in   
-          </p>
-        </section>
-      </main>
-    </div>
-  );
+       <section id="contact" className="info-section glass-card fade-up">
+  <h2>Contact Us</h2>
+  <p>
+    Swaroop: +91 9326151339 <br />
+    Aditi: +91 7738704925 <br />
+    <br />
+    csi@ternaengg.ac.in
+  </p>
+</section>
+
+<footer className="footer">
+  © 2025 ArenaX. All rights reserved. <br />
+  Developed by Swaroop
+</footer>
+
+</main>
+</div>
+);
 }
+
 
 export default App;

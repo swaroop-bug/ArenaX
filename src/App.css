@@ -788,3 +788,16 @@ body {
   border: 1px solid rgba(148, 163, 184, 0.7);
   display: block;
 }
+.footer {
+  margin: 30px auto 20px;
+  padding: 15px 20px;
+  width: 1100 px;
+
+  background: rgba(15, 23, 42, 0.85);
+  color: #cbd5e1;
+  text-align: center;
+  font-size: 14px;
+
+  border-radius: 12px;   /* ✅ rounded border */
+}
+
