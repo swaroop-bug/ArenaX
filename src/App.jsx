@@ -329,6 +329,7 @@ console.log("SheetDB response body:", text);
           {/* Rules → open Drive rulebook */}
           <button
             onClick={() =>
+             
               window.open(
                 "https://docs.google.com/document/d/1sEhN0M1htsD0gwCbjwH8mz_pMhXWwKq-/edit?usp=sharing&ouid=112968532099256946465&rtpof=true&sd=true",
                 "_blank"
@@ -680,7 +681,7 @@ console.log("SheetDB response body:", text);
                           onChange={handlePaymentChange}
                         />
                         <span>
-                          I confirm that I have paid the registration fees for{" "}
+                          I confirm that transaction ID has been provided and I have paid the registration fees for{" "}
                           {selectedGame}. 
                         </span>
                         </label>
