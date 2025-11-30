@@ -331,7 +331,7 @@ console.log("SheetDB response body:", text);
             onClick={() =>
              
               window.open(
-                "https://docs.google.com/document/d/1sEhN0M1htsD0gwCbjwH8mz_pMhXWwKq-/edit?usp=sharing&ouid=112968532099256946465&rtpof=true&sd=true",
+                "https://drive.google.com/file/d/1phBnv6GGU9uv90jz6XGviI1gjrduRV0K/view?usp=drive_link",
                 "_blank"
               )
             }
@@ -464,7 +464,7 @@ console.log("SheetDB response body:", text);
               </div>
 
               <div className="form-field">
-                <label>College Name</label>
+                <label>Institute Name</label>
                 <input
                   type="text"
                   name="collegeName"
