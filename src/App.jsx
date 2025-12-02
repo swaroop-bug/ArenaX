@@ -779,8 +779,8 @@ console.log("SheetDB response body:", text);
             Question: How to pay the registration fee? <br />
             Answer: UPI payment via QR code or UPI ID provided during registration. <br /> <br />
             Question: When and where will the matches be held? <br />
-            Answer: Online matches; schedule shared in WhatsApp groups. <br /> <br />
-            Question: Are there any prizes? <br />
+            Answer: Online matches; Most likely, the matches will be held in the afternoon(12-6) The exact timings will be notified three days prior to the match day in respective WhatsApp groups. <br /> <br />
+            Question: Are there any prizes?  <br />
             Answer: Yes, exciting prizes for winning teams. Details in rules document. <br /> <br />
             Question: What about substitutes? <br />
             Answer: Each team can register one substitute player. <br /> <br />
