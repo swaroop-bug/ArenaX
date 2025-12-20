@@ -3,7 +3,7 @@ import { useState } from "react";
 const TEAM_SIZES = {
   BGMI: 4,
   Valorant: 5,
-  "Free Fire": 4,
+  // "Free Fire": 4,
 };
 
 const WHATSAPP_LINKS = {
@@ -505,7 +505,7 @@ console.log("SheetDB response body:", text);
                 >
                   <option value="">-- Choose a game --</option>
                   <option value="BGMI">BGMI</option>
-                  <option value="Free Fire">Free Fire</option>
+                  {/* <option value="Free Fire">Free Fire</option> */}
                   <option value="Valorant">Valorant</option>
                 </select>
               </div>
