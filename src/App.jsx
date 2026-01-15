@@ -7,35 +7,46 @@ const TEAM_SIZES = {
 };
 
 const WHATSAPP_LINKS = {
-  BGMI: "https://chat.whatsapp.com/LYcJo0z4sAbEhh3o017kSc?mode=hqrc",
-  Valorant: "https://chat.whatsapp.com/IH6pLBAJeXoE5Wj4PWYFMn?mode=hqrc",
-  "Free Fire": "https://chat.whatsapp.com/BRz4Xf5ZIq60SonrGSfPWd?mode=wwt",
+  // Add your WhatsApp group invitation links here
+  // Format: https://chat.whatsapp.com/XXXXXXXXXXX
+  BGMI: "",
+  Valorant: "",
+  "Free Fire": "",
 };
 
-const LFT_WHATSAPP_LINK =
-  "https://chat.whatsapp.com/Ipx4VuZnIM90PoJHTrjFNz?mode=hqrc"; // solo/duo/trio group link
+// Add your Looking For Team (LFT) WhatsApp group invitation link here
+// Format: https://chat.whatsapp.com/XXXXXXXXXXX
+const LFT_WHATSAPP_LINK = "";
 
 const PAYMENT_INFO = {
   BGMI: {
     feeLabel: "Registration Fee: ₹400 per team",
-    upiId: "9326151339@upi",
+    // Add your UPI ID here (e.g., "username@upi")
+    upiId: "",
+    // Add QR code image path or URL for BGMI payments
     qrImage: "bgmi qr.jpg", // put these in public/ or use full URLs
   },
   "Free Fire": {
     feeLabel: "Registration Fee: ₹200 per team",
-    upiId: "9326151339@upi",
+    // Add your UPI ID here (e.g., "username@upi")
+    upiId: "",
+    // Add QR code image path or URL for Free Fire payments
     qrImage: "Freefire qr.jpg",
   },
   Valorant: {
     feeLabel: "Registration Fee: ₹500 per team",
-    upiId: "9326151339@upi",
+    // Add your UPI ID here (e.g., "username@upi")
+    upiId: "",
+    // Add QR code image path or URL for Valorant payments
     qrImage: "valorant qr.jpg",
   },
 };
 
 
 
-const SHEETDB_URL = "https://sheetdb.io/api/v1/xuqx5h1kstyzr";
+// Add your SheetDB API endpoint here
+// Format: https://sheetdb.io/api/v1/YOUR_SHEET_ID
+const SHEETDB_URL = "";
 
 
 
@@ -329,9 +340,9 @@ console.log("SheetDB response body:", text);
           {/* Rules → open Drive rulebook */}
           <button
             onClick={() =>
-             
+              // Add your Google Drive rulebook link here
               window.open(
-                "https://drive.google.com/file/d/1FEyB8tBDfAB8eyAWJdDP3TVPHhM2JdHE/view?usp=sharing",
+                "",
                 "_blank"
               )
             }
@@ -695,7 +706,7 @@ console.log("SheetDB response body:", text);
   <span>
     I agree to the{" "}
     <a
-      href="https://arenax-tandc.netlify.app/"
+      href={/* Add your Terms and Conditions URL here */}
       target="_blank"
       rel="noreferrer"
       className="tnc-link"
@@ -785,23 +796,27 @@ console.log("SheetDB response body:", text);
             Question: What about substitutes? <br />
             Answer: Each team can register one substitute player. <br /> <br />
             Question: Who to contact for support? <br />
-            Answer: Contact Swaroop (+91 9326151339) or Aditi (+91 7738704925).
+            {/* Add your organizer contact information here */}
+            Answer: Contact [Organizer Name] (Phone) or [Co-organizer Name] (Phone).
           </p>
         </section>
 
        <section id="contact" className="info-section glass-card fade-up">
   <h2>Contact Us</h2>
   <p>
-    Swaroop: +91 9326151339 <br />
-    Aditi: +91 7738704925 <br />
+    {/* Add organizer names and contact numbers here */}
+    [Organizer Name]: +91 XXXXXXXXXX <br />
+    [Co-organizer Name]: +91 XXXXXXXXXX <br />
     <br />
-    csi@ternaengg.ac.in
+    {/* Add your organization email here */}
+    [organization@domain.com]
   </p>
 </section>
 
 <footer className="footer">
   © 2025 ArenaX. All rights reserved. <br />
-  Developed by Swaroop
+  {/* Add developer/credits here */}
+  Developed by [Your Name]
 </footer>
 
 </main>
