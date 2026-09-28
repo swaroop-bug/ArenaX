@@ -51,7 +51,7 @@ const SHEETDB_URL = "";
 
 
 function App() {
-  const [step, setStep] = useState("basic"); 
+  const [step, setStep] = useState("basic");
 
   const [basicForm, setBasicForm] = useState({
     teamName: "",
@@ -77,7 +77,7 @@ function App() {
   const [successGame, setSuccessGame] = useState("");
   const [successLink, setSuccessLink] = useState("");
   const [isSubmitting, setIsSubmitting] = useState(false);
-const [acceptedTnc, setAcceptedTnc] = useState(false);
+  const [acceptedTnc, setAcceptedTnc] = useState(false);
 
   // ---------- NAVBAR SCROLL ----------
   const handleNavClick = (id) => {
@@ -108,7 +108,7 @@ const [acceptedTnc, setAcceptedTnc] = useState(false);
 
     const size = TEAM_SIZES[basicForm.game] || 4;
 
-    
+
     const mainPlayers = Array.from({ length: size }, () => ({
       name: "",
       ign: "",
@@ -157,7 +157,7 @@ const [acceptedTnc, setAcceptedTnc] = useState(false);
     reader.onloadend = () => {
       setPaymentScreenshot({
         fileName: file.name,
-        dataUrl: reader.result, 
+        dataUrl: reader.result,
       });
     };
     reader.readAsDataURL(file);
@@ -170,139 +170,139 @@ const [acceptedTnc, setAcceptedTnc] = useState(false);
 
   // ---------- SUBMIT ALL TO SHEET.BEST ----------
   const handlePlayersSubmit = async (e) => {
-  e.preventDefault();
+    e.preventDefault();
 
-  
-  for (let i = 0; i < players.length; i++) {
-    const p = players[i];
 
-    if (p.isSubstitute) {
-      const allEmpty = !p.name && !p.ign && !p.gameId;
-      if (allEmpty) continue;
+    for (let i = 0; i < players.length; i++) {
+      const p = players[i];
 
-      if (!p.name || !p.ign || !p.gameId) {
-        alert(
-          "Please either fill all substitute player fields or leave them completely empty."
-        );
-        return;
-      }
-    } else {
-      if (!p.name || !p.ign || !p.gameId) {
-        alert(`Please fill all details for Player ${i + 1}.`);
-        return;
+      if (p.isSubstitute) {
+        const allEmpty = !p.name && !p.ign && !p.gameId;
+        if (allEmpty) continue;
+
+        if (!p.name || !p.ign || !p.gameId) {
+          alert(
+            "Please either fill all substitute player fields or leave them completely empty."
+          );
+          return;
+        }
+      } else {
+        if (!p.name || !p.ign || !p.gameId) {
+          alert(`Please fill all details for Player ${i + 1}.`);
+          return;
+        }
       }
     }
-  }
 
-  if (!payment.txnId || !payment.confirmed) {
-    alert("Please enter payment transaction ID and confirm payment.");
-    return;
-  }
-
-  if (!paymentScreenshot.dataUrl) {
-    alert("Please upload the payment screenshot.");
-    return;
-  }
-
-  const link = WHATSAPP_LINKS[selectedGame] || "#";
-
- // Flatten players into columns
-const flatPlayers = {
-  player1Name: "",
-  player1Ign: "",
-  player1GameId: "",
-  player2Name: "",
-  player2Ign: "",
-  player2GameId: "",
-  player3Name: "",
-  player3Ign: "",
-  player3GameId: "",
-  player4Name: "",
-  player4Ign: "",
-  player4GameId: "",
-  player5Name: "",
-  player5Ign: "",
-  player5GameId: "",
-  substituteName: "",
-  substituteIgn: "",
-  substituteGameId: "",
-};
-
-players.forEach((p, index) => {
-  if (p.isSubstitute) {
-    flatPlayers.substituteName = p.name || "";
-    flatPlayers.substituteIgn = p.ign || "";
-    flatPlayers.substituteGameId = p.gameId || "";
-  } else {
-    const num = index + 1; // 1-based index
-    const nameKey = `player${num}Name`;
-    const ignKey = `player${num}Ign`;
-    const idKey = `player${num}GameId`;
-
-    if (flatPlayers[nameKey] !== undefined) {
-      flatPlayers[nameKey] = p.name || "";
-      flatPlayers[ignKey] = p.ign || "";
-      flatPlayers[idKey] = p.gameId || "";
-    }
-  }
-});
-
-const payload = {
-  timestamp: new Date().toISOString(),
-  teamName: basicForm.teamName,
-  collegeName: basicForm.collegeName,
-  email: basicForm.email,
-  phone: basicForm.phone,
-  game: selectedGame,
-  paymentMethod: payment.method,
-  transactionId: payment.txnId,
-  paymentScreenshotName: paymentScreenshot.fileName || "",
-  hasPaymentScreenshot: paymentScreenshot.dataUrl ? "yes" : "no",
-
-  ...flatPlayers,
-};
-
-
-
-  try {
-    setIsSubmitting(true);
-
-    console.log("Sending payload to SheetDB:", payload);
-
-    const res = await fetch(SHEETDB_URL, {
-  method: "POST",
-  headers: { "Content-Type": "application/json" },
-  body: JSON.stringify({ data: payload }), 
-});
-
-
-    const text = await res.text();
-    console.log("SheetDB status:", res.status);
-console.log("SheetDB response body:", text);
-
-    if (!res.ok) {
-      alert(
-        `SheetDB error.\n\nStatus: ${res.status}\n\nBody:\n${text}\n\nTake a screenshot of this and share it with the dev.`
-      );
+    if (!payment.txnId || !payment.confirmed) {
+      alert("Please enter payment transaction ID and confirm payment.");
       return;
     }
 
-    setSuccessGame(selectedGame);
-    setSuccessLink(link);
-    setStep("success");
+    if (!paymentScreenshot.dataUrl) {
+      alert("Please upload the payment screenshot.");
+      return;
+    }
 
-    alert(
-      `Thank you for registering for ${selectedGame}!\n\nMake sure you join the WhatsApp group shown on the screen.`
-    );
-  } catch (err) {
-    console.error("Network / CORS error while calling Sheetbest:", err);
-    alert(
-      "There was a problem submitting your registration (network / CORS). Open the console and check the red error message."
-    );
-  } finally {
-    setIsSubmitting(false);
-  }
-};
+    const link = WHATSAPP_LINKS[selectedGame] || "#";
+
+    // Flatten players into columns
+    const flatPlayers = {
+      player1Name: "",
+      player1Ign: "",
+      player1GameId: "",
+      player2Name: "",
+      player2Ign: "",
+      player2GameId: "",
+      player3Name: "",
+      player3Ign: "",
+      player3GameId: "",
+      player4Name: "",
+      player4Ign: "",
+      player4GameId: "",
+      player5Name: "",
+      player5Ign: "",
+      player5GameId: "",
+      substituteName: "",
+      substituteIgn: "",
+      substituteGameId: "",
+    };
+
+    players.forEach((p, index) => {
+      if (p.isSubstitute) {
+        flatPlayers.substituteName = p.name || "";
+        flatPlayers.substituteIgn = p.ign || "";
+        flatPlayers.substituteGameId = p.gameId || "";
+      } else {
+        const num = index + 1; // 1-based index
+        const nameKey = `player${num}Name`;
+        const ignKey = `player${num}Ign`;
+        const idKey = `player${num}GameId`;
+
+        if (flatPlayers[nameKey] !== undefined) {
+          flatPlayers[nameKey] = p.name || "";
+          flatPlayers[ignKey] = p.ign || "";
+          flatPlayers[idKey] = p.gameId || "";
+        }
+      }
+    });
+
+    const payload = {
+      timestamp: new Date().toISOString(),
+      teamName: basicForm.teamName,
+      collegeName: basicForm.collegeName,
+      email: basicForm.email,
+      phone: basicForm.phone,
+      game: selectedGame,
+      paymentMethod: payment.method,
+      transactionId: payment.txnId,
+      paymentScreenshotName: paymentScreenshot.fileName || "",
+      hasPaymentScreenshot: paymentScreenshot.dataUrl ? "yes" : "no",
+
+      ...flatPlayers,
+    };
+
+
+
+    try {
+      setIsSubmitting(true);
+
+      console.log("Sending payload to SheetDB:", payload);
+
+      const res = await fetch(SHEETDB_URL, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ data: payload }),
+      });
+
+
+      const text = await res.text();
+      console.log("SheetDB status:", res.status);
+      console.log("SheetDB response body:", text);
+
+      if (!res.ok) {
+        alert(
+          `SheetDB error.\n\nStatus: ${res.status}\n\nBody:\n${text}\n\nTake a screenshot of this and share it with the dev.`
+        );
+        return;
+      }
+
+      setSuccessGame(selectedGame);
+      setSuccessLink(link);
+      setStep("success");
+
+      alert(
+        `Thank you for registering for ${selectedGame}!\n\nMake sure you join the WhatsApp group shown on the screen.`
+      );
+    } catch (err) {
+      console.error("Network / CORS error while calling Sheetbest:", err);
+      alert(
+        "There was a problem submitting your registration (network / CORS). Open the console and check the red error message."
+      );
+    } finally {
+      setIsSubmitting(false);
+    }
+  };
 
 
   const resetAll = () => {
@@ -368,18 +368,18 @@ console.log("SheetDB response body:", text);
           </div>
 
           <div className="hero-video glass-card">
-  <video
-    className="video-element"
-    controls
-    loop
-    autoPlay
-    // muted
-    playsInline
-  >
-    <source src="/introvideo.mp4" type="video/mp4" />
-    Your browser does not support the video tag.
-  </video>
-</div>
+            <video
+              className="video-element"
+              controls
+              loop
+              autoPlay
+              // muted
+              playsInline
+            >
+              <source src="/introvideo.mp4" type="video/mp4" />
+              Your browser does not support the video tag.
+            </video>
+          </div>
 
         </section>
 
@@ -693,32 +693,11 @@ console.log("SheetDB response body:", text);
                         />
                         <span>
                           I confirm that transaction ID has been provided and I have paid the registration fees for{" "}
-                          {selectedGame}. 
+                          {selectedGame}.
                         </span>
-                        </label>
-                        <span>
-                          <label className="checkbox-row">
-  <input
-    type="checkbox"
-    checked={acceptedTnc}
-    onChange={(e) => setAcceptedTnc(e.target.checked)}
-  />
-  <span>
-    I agree to the{" "}
-    <a
-      href={/* Add your Terms and Conditions URL here */}
-      target="_blank"
-      rel="noreferrer"
-      className="tnc-link"
-    >
-      Terms & Conditions
-    </a>
-    .
-  </span>
-</label>
+                      </label>
 
-                        </span>
-                      
+
                     </>
                   );
                 })()}
@@ -801,27 +780,27 @@ console.log("SheetDB response body:", text);
           </p>
         </section>
 
-       <section id="contact" className="info-section glass-card fade-up">
-  <h2>Contact Us</h2>
-  <p>
-    {/* Add organizer names and contact numbers here */}
-    [Organizer Name]: +91 XXXXXXXXXX <br />
-    [Co-organizer Name]: +91 XXXXXXXXXX <br />
-    <br />
-    {/* Add your organization email here */}
-    [organization@domain.com]
-  </p>
-</section>
+        <section id="contact" className="info-section glass-card fade-up">
+          <h2>Contact Us</h2>
+          <p>
+            {/* Add organizer names and contact numbers here */}
+            [Organizer Name]: +91 XXXXXXXXXX <br />
+            [Co-organizer Name]: +91 XXXXXXXXXX <br />
+            <br />
+            {/* Add your organization email here */}
+            [organization@domain.com]
+          </p>
+        </section>
 
-<footer className="footer">
-  © 2025 ArenaX. All rights reserved. <br />
-  {/* Add developer/credits here */}
-  Developed by [Your Name]
-</footer>
+        <footer className="footer">
+          © 2025 ArenaX. All rights reserved. <br />
+          {/* Add developer/credits here */}
+          Developed by [Your Name]
+        </footer>
 
-</main>
-</div>
-);
+      </main>
+    </div>
+  );
 }
 
 
